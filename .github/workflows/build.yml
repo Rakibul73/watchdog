@@ -1,0 +1,106 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"          # triggers on any tag like v1.0, v1.0.0, etc.
+  workflow_dispatch:  # also allows manual trigger from the Actions tab
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel
+          strip build/watchdog
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchdog-linux
+          path: build/watchdog
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel --config Release
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchdog-windows
+          path: build/Release/watchdog.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel
+          strip build/watchdog
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchdog-macos
+          path: build/watchdog
+
+  release:
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to create a Release
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      # Rename binaries so they don't overwrite each other
+      - name: Rename binaries
+        run: |
+          mv artifacts/watchdog-linux/watchdog    artifacts/watchdog-linux
+          mv artifacts/watchdog-windows/watchdog.exe artifacts/watchdog-windows.exe
+          mv artifacts/watchdog-macos/watchdog    artifacts/watchdog-macos
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "watchdog ${{ github.ref_name }}"
+          body: |
+            ## watchdog ${{ github.ref_name }}
+
+            Pre-built binaries for all platforms.
+
+            | File | Platform |
+            |------|----------|
+            | `watchdog-linux` | Linux x86-64 |
+            | `watchdog-windows.exe` | Windows x86-64 |
+            | `watchdog-macos` | macOS (Apple Clang) |
+
+            ### Quick start
+            ```
+            watchdog --cpu 30% --mem 512mb -- cargo build
+            watchdog --cpu 50% --verbose   -- npm install
+            watchdog --help
+            ```
+          files: |
+            artifacts/watchdog-linux
+            artifacts/watchdog-windows.exe
+            artifacts/watchdog-macos
+          draft: false
+          prerelease: false

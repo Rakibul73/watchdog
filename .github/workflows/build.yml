@@ -69,12 +69,13 @@ jobs:
         with:
           path: artifacts
 
-      # Rename binaries so they don't overwrite each other
+      # Rename binaries into dist/ with platform-specific names
       - name: Rename binaries
         run: |
-          mv artifacts/watchdog-linux/watchdog    artifacts/watchdog-linux
-          mv artifacts/watchdog-windows/watchdog.exe artifacts/watchdog-windows.exe
-          mv artifacts/watchdog-macos/watchdog    artifacts/watchdog-macos
+          mkdir dist
+          cp artifacts/watchdog-linux/watchdog       dist/watchdog-linux
+          cp artifacts/watchdog-windows/watchdog.exe dist/watchdog-windows.exe
+          cp artifacts/watchdog-macos/watchdog       dist/watchdog-macos
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -99,8 +100,8 @@ jobs:
             watchdog --help
             ```
           files: |
-            artifacts/watchdog-linux
-            artifacts/watchdog-windows.exe
-            artifacts/watchdog-macos
+            dist/watchdog-linux
+            dist/watchdog-windows.exe
+            dist/watchdog-macos
           draft: false
           prerelease: false

@@ -1,4 +1,3 @@
-#ifdef WD_MACOS
 #include "platform.hpp"
 #include <libproc.h>
 #include <spawn.h>
@@ -144,4 +143,4 @@ void resume_process(ProcessHandle* h) {
 }
 
 } // namespace watchdog
-#endif // WD_MACOS
+

@@ -1,15 +1,5 @@
 #pragma once
 
-#if defined(_WIN32) || defined(_WIN64)
-  #define WD_WINDOWS 1
-#elif defined(__APPLE__) && defined(__MACH__)
-  #define WD_MACOS 1
-#elif defined(__linux__)
-  #define WD_LINUX 1
-#else
-  #error "Unsupported platform"
-#endif
-
 #include <cstdint>
 #include <string>
 

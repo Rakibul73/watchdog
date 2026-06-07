@@ -1,4 +1,3 @@
-#ifdef WD_WINDOWS
 #include "platform.hpp"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -270,4 +269,4 @@ void resume_process(ProcessHandle* h) {
 }
 
 } // namespace watchdog
-#endif // WD_WINDOWS
+

@@ -1,4 +1,3 @@
-#ifdef WD_LINUX
 #include "platform.hpp"
 #include <spawn.h>
 #include <sys/wait.h>
@@ -193,4 +192,4 @@ void resume_process(ProcessHandle* h) {
 }
 
 } // namespace watchdog
-#endif // WD_LINUX
+
